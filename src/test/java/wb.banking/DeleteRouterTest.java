@@ -6,6 +6,7 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import wb.banking.exceptions.DuplicateFileException;
 import wb.banking.processors.IngDibaDateEvaluator;
@@ -37,7 +38,7 @@ public class DeleteRouterTest extends CamelTestSupport {
 
     public class DeleteRouter extends RouteBuilder {
 
-
+        @Ignore
         @Override
         public void configure() throws Exception {
             from("seda:startme")
@@ -53,17 +54,17 @@ public class DeleteRouterTest extends CamelTestSupport {
                             String body = exchange.getIn().getBody(String.class);
                             if (body.contains("id")) {
                                 try {
-                                String id = body.substring(1, (body.indexOf("value")-1));
-                                id=id.replaceAll("id", "\"id\"");
-                                id=id.replaceAll("key", "\"key\"");
-                                id=id.replaceAll(":", ":\"");
-                                id=id.replaceAll(",", "\",");
-                                int ind=id.lastIndexOf(",");
-                                id=id.substring(0,ind);
-                                id+="}";
-                                System.out.println(id);
-                                exchange.getIn().setBody(id);
-                                exchange.getIn().setHeader("removable", true);
+                                    String id = body.substring(1, (body.indexOf("value") - 1));
+                                    id = id.replaceAll("id", "\"id\"");
+                                    id = id.replaceAll("key", "\"key\"");
+                                    id = id.replaceAll(":", ":\"");
+                                    id = id.replaceAll(",", "\",");
+                                    int ind = id.lastIndexOf(",");
+                                    id = id.substring(0, ind);
+                                    id += "}";
+                                    System.out.println("\n\nID: " + id + "\n\n");
+                                    exchange.getIn().setBody(id);
+                                    exchange.getIn().setHeader("removable", true);
                                 } catch (StringIndexOutOfBoundsException sie) {
                                 }
                             }
@@ -71,7 +72,7 @@ public class DeleteRouterTest extends CamelTestSupport {
                     })
                     .filter(header("removable").isNotNull())
                     .setHeader("CamelHttpMethod", constant("DELETE"))
-                    .to("http://localhost:5984/showaccounts")
+//                    .to("http://localhost:5984/showaccounts/")
                     ;
 
         }

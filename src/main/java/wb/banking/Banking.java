@@ -14,10 +14,9 @@ import java.util.List;
 
 public class Banking extends RouteBuilder {
 	
-    private String inputFileEndpoint = "file:///Users/martinh/Documents/Allgemein/BankingSources/data/input?delete=true";
-    public static String outputEndpoint = "http://localhost:5984/showaccounts/";
-
-    private String archiveEndpoint = "file:///Users/martinh/Documents/Allgemein/BankingSources/data/archive";
+    private String inputFileEndpoint = "{{banking.file.inputendpoint}}";
+    private String outputEndpoint = "{{general.http.databaseUri}}";
+    private String archiveEndpoint = "{{banking.file.archive}}";
 
 	private IngDibaFilter dibaFilter;
 
@@ -27,7 +26,7 @@ public class Banking extends RouteBuilder {
         onException(DuplicateFileException.class)
                 .handled(true)
                 .log("Diagnosed Duplicate File Input")
-                .to(archiveEndpoint + "/dups");
+                .to(archiveEndpoint);
 
 
         from(inputFileEndpoint)
@@ -52,15 +51,10 @@ public class Banking extends RouteBuilder {
                 .to(outputEndpoint)
                 .process(new BodyPrinter());
 
-        // outputEndpoint:"http4://localhost:5984/accounts/"
-
         from("seda:fileoutput")
                 .routeId("archive")
                 .filter(simple("${in.header.test} != 'true'"))
                 .to(archiveEndpoint);
-
-
-
 
     }
 

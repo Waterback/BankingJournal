@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Licensed to the Apache Software Foundation (ASF) under one or more contributor 
+	license agreements. See the NOTICE file distributed with this work for additional 
+	information regarding copyright ownership. The ASF licenses this file to 
+	You under the Apache License, Version 2.0 (the "License"); you may not use 
+	this file except in compliance with the License. You may obtain a copy of 
+	the License at http://www.apache.org/licenses/LICENSE-2.0 Unless required 
+	by applicable law or agreed to in writing, software distributed under the 
+	License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS 
+	OF ANY KIND, either express or implied. See the License for the specific 
+	language governing permissions and limitations under the License. -->
+
+<!-- Configures the Camel Context -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:camel="http://camel.apache.org/schema/spring"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="properties" class="org.apache.camel.component.properties.PropertiesComponent">
+        <property name="location" value="classpath:/banking.properties"/>
+    </bean>
+
+	<bean id="traceFormatter"
+		class="org.apache.camel.processor.interceptor.DefaultTraceFormatter">
+		<property name="showBody" value="false" />
+		<property name="showHeaders" value="true" />
+		<property name="showBodyType" value="true" />
+		<property name="showBreadCrumb" value="false" />
+		<property name="maxChars" value="450" />
+	</bean>
+
+
+	<camel:camelContext xmlns="http://camel.apache.org/schema/spring"
+		trace="false" streamCache="false">
+		<camel:routeBuilder ref="banking" />
+        <camel:routeBuilder ref="datevaluequery" />
+        <camel:routeBuilder ref="query" />
+    </camel:camelContext>
+	
+	<bean id="banking" class="wb.banking.Banking">
+		<property name="dibaFilter" ref="dibaFilter" />
+	</bean>
+
+    <bean id="datevaluequery" class="wb.banking.DateValueQuery" >
+    </bean>
+
+    <bean id="query" class="wb.banking.QueryRouter">
+        <property name="dibaFilter" ref="dibaFilter" />
+    </bean>
+
+    <bean id="dibaFilter" class="wb.banking.beans.IngDibaFilter">
+		<property name="accountMap">
+			<map>
+				<entry key="5540072747" value="FinFr" />
+				<entry key="8004462085" value="Depot" />
+				<entry key="8004617970" value="Depot LS" />
+				<entry key="5540335929" value="Spass" />
+				<entry key="5540335947" value="Ausbi" />
+				<entry key="5540335938" value="NoAus" />
+				<entry key="5540335938" value="LangS" />
+				<entry key="5409671467" value="GiroK" />
+			</map>
+		</property>
+	</bean>
+
+	<!-- -->
+
+</beans>
+	

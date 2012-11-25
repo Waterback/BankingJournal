@@ -6,6 +6,7 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import wb.banking.beans.IngDibaFilter;
 
@@ -24,7 +25,7 @@ public class BankingTest extends CamelTestSupport {
     public void setup () throws Exception {
         super.setUp();
         context.addRoutes(new FileCopyRoute());
-        context.addRoutes(new DateValueQuery());
+        context.addRoutes(new DateValueQueryTester());
         filter = new IngDibaFilter();
         filter.setAccountMap(createAccountMap());
     }
@@ -37,6 +38,7 @@ public class BankingTest extends CamelTestSupport {
 
         Banking banking = new Banking();
         banking.setInputFileEndpoint(inputEP);
+        banking.setArchiveEndpoint("mock:archive");
         banking.setOutputEndpoint("mock:output");
         banking.setDibaFilter(filter);
         context.addRoutes(banking);
@@ -45,11 +47,12 @@ public class BankingTest extends CamelTestSupport {
 
         List<Exchange> list = mock.getReceivedExchanges();
         Exchange e = list.get(0);
-        String expectedDoc = "{\"dateOfInfo\":-3540000,\"accountNumber\":\"1\",\"purpose\":\"Konto1\",\"accountType\":\"Girokonto\",\"moneyOTB\":1239.7}";
+        String expectedDoc = "{\"dateOfInfo\":82860000,\"accountNumber\":\"1\",\"purpose\":\"Konto1\",\"accountType\":\"Girokonto\",\"moneyOTB\":1239.7}";
         Assert.assertEquals(expectedDoc, e.getIn().getBody(String.class));
         
     }
 
+    @Ignore
     @Test
     public void couchDbRequestSuccessTest() throws Exception {
         String o = template.requestBodyAndHeader("direct:datevaluequery", "Dummy", "timeValue", "1335302700000", String.class);
@@ -57,6 +60,7 @@ public class BankingTest extends CamelTestSupport {
         Assert.assertTrue(o.contains("\"key\":1335302700000"));
     }
 
+    @Ignore
     @Test
     public void couchDbRequestFailTest() throws Exception {
         String o = template.requestBodyAndHeader("direct:datevaluequery", "Dummy", "timeValue", "1023928392", String.class);
@@ -71,9 +75,17 @@ public class BankingTest extends CamelTestSupport {
 
         @Override
         public void configure() throws Exception {
-             from("file:src/data/test?noop=true")
+             from("file:src/data/test/unit?noop=true")
                     .setHeader("Test", constant("true"))
                     .to(inputEP);
+        }
+    }
+
+    public class DateValueQueryTester extends RouteBuilder {
+        @Override
+        public void configure() throws Exception {
+            from("direct:datevaluequery")
+                    .setBody(simple("justtest"));
         }
     }
     

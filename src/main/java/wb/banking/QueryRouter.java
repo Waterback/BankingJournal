@@ -28,20 +28,15 @@ public class QueryRouter extends RouteBuilder {
      * every minute.
      */
 //    private String timerStart = "quartz://zs3vsl/pserunchecker?cron=0+*/5+*+*+*+?+*";
-    private String timerStart = "timer://foo?fixedRate=true&period=120000";
+    private String timerValue = "{{queryrouter.timer.routestart}}";
     private IngDibaFilter dibaFilter;
-    private String outputFileEndpoint = "file:///Users/martinh/Documents/Allgemein/BankingSources/data/output";
-
+    private String outputFileEndpoint = "{{queryrouter.file.dataOutputFileEndpoint}}";
+    private String databaseUri = "{{general.http.databaseUri}}/_design/eval_query/_view/eval_query";
     @Override
     public void configure() throws Exception {
 
-
-        String uri = Banking.outputEndpoint + "_design/eval_query/_view/eval_query";
-
-        System.out.println(uri);
-
-        from(timerStart)
-                .setHeader(Exchange.HTTP_URI, simple(uri))
+        from(timerValue)
+                .setHeader(Exchange.HTTP_URI, simple(databaseUri))
                 .to("http://dummy")
                 .process(new StringRemover(new String[]{"\"", "\\]", "\\[", "\\}", "\\{" }))
                 .unmarshal().csv()
@@ -73,4 +68,15 @@ public class QueryRouter extends RouteBuilder {
         this.dibaFilter = dibaFilter;
     }
 
+    public void setDatabaseUri(String databaseUri) {
+        this.databaseUri = databaseUri;
+    }
+
+    public void setOutputFileEndpoint(String outputFileEndpoint) {
+        this.outputFileEndpoint = outputFileEndpoint;
+    }
+
+    public void setTimerValue(String timerValue) {
+        this.timerValue = timerValue;
+    }
 }

@@ -15,14 +15,20 @@ import java.net.URLEncoder;
  */
 public class DateValueQuery extends RouteBuilder {
 
+    private String outputEndpoint;
+
+
     @Override
     public void configure() throws Exception {
 
-        String uri = Banking.outputEndpoint + "_design/date_value/_view/date_value?key=${header.timeValue}";
+        String uri = outputEndpoint + "/_design/date_value/_view/date_value?key=${header.timeValue}";
         System.out.println(uri);
         from("direct:datevaluequery")
                 .setHeader(Exchange.HTTP_URI, simple(uri))
                .inOut("http://dummyhost");
     }
 
+    public void setOutputEndpoint(String outputEndpoint) {
+        this.outputEndpoint = outputEndpoint;
+    }
 }
