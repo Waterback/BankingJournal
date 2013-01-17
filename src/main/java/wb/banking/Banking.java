@@ -14,7 +14,7 @@ import java.util.List;
 
 public class Banking extends RouteBuilder {
 	
-    private String inputFileEndpoint = "{{banking.file.inputendpoint}}";
+    private String inputFileEndpoint = "{{banking.file.inputendpoint}}?delete=true";
     private String outputEndpoint = "{{general.http.databaseUri}}";
     private String archiveEndpoint = "{{banking.file.archive}}";
 
@@ -32,15 +32,15 @@ public class Banking extends RouteBuilder {
         from(inputFileEndpoint)
                 .routeId("csvhandling")
                 .convertBodyTo(String.class)
-                .process(new StringRemover(new String[]{"\""}))
+                .transform(body().regexReplaceAll("\"", ""))
                 .process(new IngDibaDateEvaluator())
                 .process(new DupChecker())
                 .wireTap("seda:fileoutput")
                 .unmarshal().csv()
-                .split(body(List.class))
+                .split(body(List.class)).streaming()
                 .to("seda:singlepartsroute");
 
-        from("seda:singlepartsroute")
+        from("seda:singlepartsroute?concurrentConsumers=12")
                 .routeId("singleparts")
                 .filter().method(dibaFilter, "isRelevant")
                 .bean(dibaFilter, "transformBody")

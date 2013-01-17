@@ -21,11 +21,9 @@ public class DateValueQuery extends RouteBuilder {
     @Override
     public void configure() throws Exception {
 
-        String uri = outputEndpoint + "/_design/date_value/_view/date_value?key=${header.timeValue}";
-        System.out.println(uri);
         from("direct:datevaluequery")
-                .setHeader(Exchange.HTTP_URI, simple(uri))
-               .inOut("http://dummyhost");
+               .setHeader(Exchange.HTTP_QUERY, simple("key=${header.timeValue}"))
+               .inOut("{{general.http.databaseUri}}/_design/date_value/_view/date_value");
     }
 
     public void setOutputEndpoint(String outputEndpoint) {

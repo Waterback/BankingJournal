@@ -52,6 +52,7 @@ public class BankingTest extends CamelTestSupport {
         
     }
 
+
     @Ignore
     @Test
     public void couchDbRequestSuccessTest() throws Exception {

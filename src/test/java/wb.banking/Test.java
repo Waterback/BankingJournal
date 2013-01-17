@@ -1,6 +1,7 @@
 package wb.banking;
 
 import org.apache.camel.component.dataset.DataSetSupport;
+import org.apache.camel.component.dataset.SimpleDataSet;
 
 /**
  * Created with IntelliJ IDEA.
@@ -12,6 +13,7 @@ import org.apache.camel.component.dataset.DataSetSupport;
 public class Test extends DataSetSupport {
     @Override
     protected Object createMessageBody(long l) {
+        SimpleDataSet ds;
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
